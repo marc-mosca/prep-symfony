@@ -1,7 +1,7 @@
 # Installation d'outils tiers
 
 L'installation d'outils tiers permet de faciliter le développement. Nous allons donc voir comment installer `Webpack`,
-`TailwindCSS` et `DaisyUI`.
+`TailwindCSS`, `DaisyUI` et `Symfony Live Component`.
 
 ## Prérequis
 
@@ -84,6 +84,21 @@ Il ne vous reste plus qu'à ajouter le plugin dans votre feuille de style :
 
 ```css
 @plugin "daisyui";
+```
+
+## Symfony Live Component
+
+Pour installer les `Live Component` de Symfony, il suffit de lancer la commande :
+
+```shell
+composer require symfony/ux-live-component
+```
+
+Une fois installé, vous devez recompilé vos assets et relancé `Webpack` :
+
+```shell
+npm install --force
+npm run watch
 ```
 
 ## Liens utiles
