@@ -1,0 +1,15 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Page Inscription{% endblock %}
+
+{% block body %}
+
+    <div class="flex flex-col justify-center items-center space-y-4">
+        <h1 class="text-3xl font-bold underline pb-2 text-center">Page d'inscription</h1>
+
+        <fieldset class="fieldset bg-base-300 border-base-300 rounded-box w-xs border p-4">
+            {{ form(form) }}
+        </fieldset>
+    </div>
+
+{% endblock %}

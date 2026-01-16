@@ -1,0 +1,29 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Page de connexion{% endblock %}
+
+{% block body %}
+    <div class="flex flex-col justify-center items-center space-y-4">
+        <h1 class="text-3xl font-bold underline">Page de connexion</h1>
+
+        <fieldset class="fieldset bg-base-300 border-base-300 rounded-box w-xs border p-4">
+            <form action="{{ path("auth.login") }}" method="post">
+                <label class="input validator my-1">
+                    {{ icon("mail", {"class": "w-6 h-[1em] opacity-50"}) }}
+                    <input type="email" id="username" name="_username" value="{{ last_username }}" placeholder="john@doe.fr" required />
+                </label>
+                <div class="validator-hint hidden">Entrer une adresse mail valide.</div>
+
+                <label class="input validator my-1">
+                    {{ icon("password", {"class": "w-6 h-[1em] opacity-50"}) }}
+                    <input type="password" id="password" name="_password" required placeholder="********" minlength="8" />
+                </label>
+                <p class="validator-hint hidden">Doit comporter plus de huit caractères, dont au moins un chiffre, une lettre minuscule et une lettre majuscule.</p>
+
+                <input type="hidden" name="_csrf_token" data-controller="csrf-protection" value="{{ csrf_token('authenticate') }}">
+
+                <button type="submit" class="btn btn-neutral mt-4">Se connecter</button>
+            </form>
+        </fieldset>
+    </div>
+{% endblock %}
