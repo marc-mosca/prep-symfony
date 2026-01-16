@@ -1,0 +1,14 @@
+# Directories
+# ================
+
+.idea/
+.vscode/
+.git/
+docs/
+
+# Files
+# ================
+
+.editorconfig
+.gitignore
+README.md
