@@ -10,7 +10,7 @@
                 <li><a href="{{ path("home.index") }}">Accueil</a></li>
 
                 {% if is_granted("IS_AUTHENTICATED") %}
-                    <li><a href="#">Utilisateurs</a></li>
+                    <li><a href="{{ path("user.index") }}">Utilisateurs</a></li>
                 {% endif %}
             </ul>
         </div>
@@ -21,7 +21,7 @@
             <li><a href="{{ path("home.index") }}">Accueil</a></li>
 
             {% if is_granted("IS_AUTHENTICATED") %}
-                <li><a href="#">Utilisateurs</a></li>
+                <li><a href="{{ path("user.index") }}">Utilisateurs</a></li>
             {% endif %}
         </ul>
     </div>

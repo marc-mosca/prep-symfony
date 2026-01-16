@@ -1,0 +1,38 @@
+<div class="flex flex-col space-y-8"{{ attributes }}>
+    <div class="overflow-x-auto rounded-box border border-base-content/5 bg-base-100">
+        <table class="table table-zebra">
+            <thead>
+            <tr>
+                <th></th>
+                <th>Nom</th>
+                <th>Email</th>
+                <th>Age</th>
+                <th>Roles</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            {% if page > 1 %}
+                <tbody id="page--{{ page - 1 }}" data-live-ignore="true"></tbody>
+            {% endif %}
+            <tbody id="page--{{ page }}" data-live-ignore="true">
+            {% for user in this.users %}
+                <tr>
+                    <th>{{ user.id }}</th>
+                    <td>{{ user.username }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>{{ user.age }}</td>
+                    <td>{{ user.roles | join(", ") }}</td>
+                    <td class="flex flex-row border-none">
+                        <a href="#">{{ icon("mail", {"class": "w-6 h-[1em] opacity-50"}) }}</a>
+                        <a href="#">{{ icon("mail", {"class": "w-6 h-[1em] opacity-50"}) }}</a>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% if this.hasMore %}
+        <button class="btn" data-action="live#action" data-live-action-param="more">Voir plus</button>
+    {% endif %}
+</div>
