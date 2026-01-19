@@ -23,8 +23,12 @@
                     <td>{{ user.age }}</td>
                     <td>{{ user.roles | join(", ") }}</td>
                     <td class="flex flex-row border-none">
-                        <a href="#">{{ icon("mail", {"class": "w-6 h-[1em] opacity-50"}) }}</a>
-                        <a href="#">{{ icon("mail", {"class": "w-6 h-[1em] opacity-50"}) }}</a>
+                        <button class="btn btn-sm btn-ghost tooltip">
+                            <twig:icon name="edit" class="w-4 h-4" />
+                        </button>
+                        <button class="btn btn-sm btn-ghost btn-error tooltip">
+                            <twig:icon name="trash" class="w-4 h-4" />
+                        </button>
                     </td>
                 </tr>
             {% endfor %}
