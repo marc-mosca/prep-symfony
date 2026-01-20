@@ -20,9 +20,10 @@
                     <td>{{ user.age }}</td>
                     <td>{{ user.roles | join(", ") }}</td>
                     <td class="flex flex-row border-none">
-                        <button class="btn btn-sm btn-ghost tooltip">
+                        <button class="btn btn-sm btn-ghost tooltip" onclick="user_edit_modal_{{ user.id }}.showModal()">
                             <twig:icon name="edit" class="w-4 h-4" />
                         </button>
+                        <twig:user-edit-modal :user="user" />
 
                         <button
                             class="btn btn-sm btn-ghost btn-error tooltip"
