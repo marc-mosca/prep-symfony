@@ -1,4 +1,4 @@
-<div class="flex flex-col space-y-8"{{ attributes }}>
+<div class="flex flex-col space-y-8" {{ attributes }}>
     <div class="overflow-x-auto rounded-box border border-base-content/5 bg-base-100">
         <table class="table table-zebra">
             <thead>
@@ -11,10 +11,7 @@
                 <th>Actions</th>
             </tr>
             </thead>
-            {% if page > 1 %}
-                <tbody id="page--{{ page - 1 }}" data-live-ignore="true"></tbody>
-            {% endif %}
-            <tbody id="page--{{ page }}" data-live-ignore="true">
+            <tbody id="page--{{ page }}">
             {% for user in this.users %}
                 <tr>
                     <th>{{ user.id }}</th>
@@ -26,7 +23,13 @@
                         <button class="btn btn-sm btn-ghost tooltip">
                             <twig:icon name="edit" class="w-4 h-4" />
                         </button>
-                        <button class="btn btn-sm btn-ghost btn-error tooltip">
+
+                        <button
+                            class="btn btn-sm btn-ghost btn-error tooltip"
+                            data-action="live#action"
+                            data-live-action-param="delete"
+                            data-live-id-param="{{ user.id }}"
+                        >
                             <twig:icon name="trash" class="w-4 h-4" />
                         </button>
                     </td>
@@ -37,6 +40,12 @@
     </div>
 
     {% if this.hasMore %}
-        <button class="btn" data-action="live#action" data-live-action-param="more">Voir plus</button>
+        <button
+            class="btn"
+            data-action="live#action"
+            data-live-action-param="more"
+        >
+            Voir plus
+        </button>
     {% endif %}
 </div>
