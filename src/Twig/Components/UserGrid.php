@@ -13,34 +13,27 @@ use Symfony\UX\LiveComponent\DefaultActionTrait;
 #[AsLiveComponent("user-grid", template: "components/user-grid.html.twig")]
 class UserGrid
 {
+
     use DefaultActionTrait;
 
-    private const PER_PAGE = 10;
+    private const int PER_PAGE = 10;
 
     #[LiveProp]
     public array $userIds = [];
 
     #[LiveProp]
-    public int $page = 1;
+    public ?int $cursor = null;
 
     public function __construct(
         private readonly UserRepository $userRepository,
         private readonly EntityManagerInterface $entityManager,
-    ) {
+    )
+    {
     }
 
     public function mount(): void
     {
-        $this->loadPage(1);
-    }
-
-    private function loadPage(int $page): void
-    {
-        $ids = $this->userRepository->paginateIds($page, self::PER_PAGE);
-
-        $this->userIds = array_values(
-            array_unique([...$this->userIds, ...$ids])
-        );
+        $this->loadMore();
     }
 
     public function getUsers(): array
@@ -56,13 +49,24 @@ class UserGrid
     #[LiveAction]
     public function more(): void
     {
-        $this->page++;
-        $this->loadPage($this->page);
+        $this->loadMore();
+    }
+
+    private function loadMore(?int $cursor = null, int $limit = self::PER_PAGE): void
+    {
+        $cursor = $cursor ?? ($this->cursor ?? 0);
+        $ids = $this->userRepository->findNextIds(afterId: $cursor, limit: $limit);
+
+        if (empty($ids) === false)
+        {
+            $this->userIds = array_merge($this->userIds, $ids);
+            $this->cursor  = end($ids);
+        }
     }
 
     public function hasMore(): bool
     {
-        return $this->userRepository->count() > count($this->userIds);
+        return $this->userRepository->hasAfterId($this->cursor ?? 0);
     }
 
     #[LiveAction]
@@ -74,16 +78,12 @@ class UserGrid
         $this->entityManager->flush();
         $this->userIds = array_values(array_filter($this->userIds, fn (int $userId) => $userId !== $id));
 
-        $expectedCount = $this->page * self::PER_PAGE;
-        $currentCount  = count($this->userIds);
+        $missing = self::PER_PAGE - count($this->userIds);
 
-        if ($currentCount < $expectedCount)
+        if ($missing > 0)
         {
-            $missing = $expectedCount - $currentCount;
-            $lastId = empty($this->userIds) === true ? 0 : max($this->userIds);
-
-            $nextIds = $this->userRepository->findNextIds(afterId: $lastId, limit: $missing);
-            $this->userIds = array_merge($this->userIds, $nextIds);
+            $lastId = empty($this->userIds) ? ($this->cursor ?? 0) : max($this->userIds);
+            $this->loadMore($lastId, $missing);
         }
     }
 
