@@ -7,18 +7,16 @@
                 <th>Nom</th>
                 <th>Email</th>
                 <th>Age</th>
-                <th>Roles</th>
                 <th>Actions</th>
             </tr>
             </thead>
             <tbody>
-            {% for user in this.users %}
+            {% for user in users %}
                 <tr>
                     <th>{{ user.id }}</th>
                     <td>{{ user.username }}</td>
                     <td>{{ user.email }}</td>
                     <td>{{ user.age }}</td>
-                    <td>{{ user.roles | join(", ") }}</td>
                     <td class="flex flex-row border-none">
                         <button class="btn btn-sm btn-ghost tooltip" onclick="user_edit_modal_{{ user.id }}.showModal()">
                             <twig:icon name="edit" class="w-4 h-4" />

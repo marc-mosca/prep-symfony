@@ -4,8 +4,23 @@
             <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
         </form>
 
-        <h3 class="text-lg font-bold">Hello {{ user.username }}!</h3>
-        <p class="py-4">Your ID is {{ user.id }}</p>
-        <p class="py-4">Press ESC key or click on ✕ button to close</p>
+        <form class="flex flex-col space-y-4" action="#">
+            <div>
+                <label for="user-edit__username" class="fieldset-legend">Nom d'utilisateur</label>
+                <input id="user-edit__username" type="text" class="input" value="{{ user.username }}" />
+            </div>
+
+            <div>
+                <label for="user-edit__email" class="fieldset-legend">Adresse mail</label>
+                <input id="user-edit__email" type="email" class="input" value="{{ user.email }}" />
+            </div>
+
+            <div>
+                <label for="user-edit__age" class="fieldset-legend">Age de l'utilisateur</label>
+                <input id="user-edit__age" type="number" class="input" value="{{ user.age }}" />
+            </div>
+
+            <button type="submit" class="btn btn-neutral">Enregistrer</button>
+        </form>
     </div>
 </dialog>

@@ -2,6 +2,7 @@
 
 namespace App\Twig\Components;
 
+use App\Entity\User;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\UX\LiveComponent\Attribute\AsLiveComponent;
@@ -10,16 +11,17 @@ use Symfony\UX\LiveComponent\Attribute\LiveArg;
 use Symfony\UX\LiveComponent\Attribute\LiveProp;
 use Symfony\UX\LiveComponent\DefaultActionTrait;
 
-#[AsLiveComponent("user-grid", template: "components/user-grid.html.twig")]
-class UserGrid
+#[AsLiveComponent("user-table", template: "components/user-table.html.twig")]
+class UserTable
 {
 
     use DefaultActionTrait;
 
     private const int PER_PAGE = 10;
 
+    /** @var User[] */
     #[LiveProp]
-    public array $userIds = [];
+    public array $users = [];
 
     #[LiveProp]
     public ?int $cursor = null;
@@ -33,35 +35,21 @@ class UserGrid
 
     public function mount(): void
     {
-        $this->loadMore();
+        $this->loadUsers();
     }
 
-    public function getUsers(): array
+    public function loadUsers(?int $cursor = null, int $limit = self::PER_PAGE): void
     {
-        if (empty($this->userIds) === true)
-        {
-            return [];
-        }
-
-        return $this->userRepository->findBy(['id' => $this->userIds]);
+        $cursor = $cursor ?? ($this->cursor ?? 0);
+        $users = $this->userRepository->findNextUsers(afterId: $cursor, limit: $limit);
+        $this->users = array_merge($this->users, $users);
+        $this->cursor = end($users)->getId();
     }
 
     #[LiveAction]
     public function more(): void
     {
-        $this->loadMore();
-    }
-
-    private function loadMore(?int $cursor = null, int $limit = self::PER_PAGE): void
-    {
-        $cursor = $cursor ?? ($this->cursor ?? 0);
-        $ids = $this->userRepository->findNextIds(afterId: $cursor, limit: $limit);
-
-        if (empty($ids) === false)
-        {
-            $this->userIds = array_merge($this->userIds, $ids);
-            $this->cursor  = end($ids);
-        }
+        $this->loadUsers();
     }
 
     public function hasMore(): bool
@@ -76,14 +64,14 @@ class UserGrid
 
         $this->entityManager->remove($user);
         $this->entityManager->flush();
-        $this->userIds = array_values(array_filter($this->userIds, fn (int $userId) => $userId !== $id));
+        $this->users = array_values(array_filter($this->users, fn ($u) => $u !== $user));
 
-        $missing = self::PER_PAGE - count($this->userIds);
+        $missing = self::PER_PAGE - count($this->users);
 
         if ($missing > 0)
         {
-            $lastId = empty($this->userIds) ? ($this->cursor ?? 0) : max($this->userIds);
-            $this->loadMore($lastId, $missing);
+            $lastId = empty($this->users) ? ($this->cursor ?? 0) : end($this->users)->getId();
+            $this->loadUsers($lastId, $missing);
         }
     }
 

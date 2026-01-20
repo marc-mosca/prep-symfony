@@ -35,16 +35,15 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         $this->getEntityManager()->flush();
     }
 
-    public function findNextIds(int $afterId, int $limit): array
+    public function findNextUsers(int $afterId, int $limit): array
     {
         return $this->createQueryBuilder('u')
-            ->select('u.id')
             ->where('u.id > :afterId')
             ->setParameter('afterId', $afterId)
             ->orderBy('u.id', 'ASC')
             ->setMaxResults($limit)
             ->getQuery()
-            ->getSingleColumnResult();
+            ->getResult();
     }
 
     public function hasAfterId(int $afterId): bool
