@@ -7,7 +7,7 @@ services:
         depends_on:
             - db
         volumes:
-            - .:/var/www/html
+            - .:/var/www/html:delegated
             - ./docker/default.conf:/etc/apache2/sites-available/000-default.conf
         ports:
             - "8000:80"
