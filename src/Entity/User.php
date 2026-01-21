@@ -32,7 +32,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private string $password = "";
 
     #[ORM\Column(type: "integer", nullable: false)]
-    private int $age;
+    private int $age = 0;
 
     /** @var list<string> The user roles */
     #[ORM\Column(type: "json", nullable: false)]

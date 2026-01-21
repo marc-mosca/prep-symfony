@@ -3,12 +3,16 @@
 namespace App\Twig\Components;
 
 use App\Entity\User;
+use App\Form\UserEditFormType;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Form\FormFactoryInterface;
+use Symfony\Component\Form\FormInterface;
 use Symfony\UX\LiveComponent\Attribute\AsLiveComponent;
 use Symfony\UX\LiveComponent\Attribute\LiveAction;
 use Symfony\UX\LiveComponent\Attribute\LiveArg;
 use Symfony\UX\LiveComponent\Attribute\LiveProp;
+use Symfony\UX\LiveComponent\ComponentWithFormTrait;
 use Symfony\UX\LiveComponent\DefaultActionTrait;
 
 #[AsLiveComponent("user-table", template: "components/user-table.html.twig")]
@@ -24,9 +28,13 @@ class UserTable
     public array $users = [];
 
     #[LiveProp]
+    public ?User $editingUser = null;
+
+    #[LiveProp]
     public ?int $cursor = null;
 
     public function __construct(
+        private readonly FormFactoryInterface $formFactory,
         private readonly UserRepository $userRepository,
         private readonly EntityManagerInterface $entityManager,
     )
@@ -55,6 +63,30 @@ class UserTable
     public function hasMore(): bool
     {
         return $this->userRepository->hasAfterId($this->cursor ?? 0);
+    }
+
+    #[LiveAction]
+    public function edit(#[LiveArg] int $id): void
+    {
+        $this->editingUser = $this->userRepository->find($id);
+        $this->form = $this->formFactory->create(UserEditFormType::class, $this->editingUser)->createView();
+    }
+
+    #[LiveAction]
+    public function save(): void
+    {
+        $this->submitForm();
+
+        if ($this->getForm()->isValid()) {
+            $this->entityManager->flush();
+            $this->editingUser = null;
+        }
+    }
+
+    #[LiveAction]
+    public function close(): void
+    {
+        $this->editingUser = null;
     }
 
     #[LiveAction]
