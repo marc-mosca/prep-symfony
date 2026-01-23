@@ -51,10 +51,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function getUserIdentifier(): string
     {
-        $email = $this->getEmail();
-        \assert($email !== "");
-
-        return $email;
+        return $this->email;
     }
 
     public function getUsername(): string
@@ -106,9 +103,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->age;
     }
 
-    public function setAge(int $age): self
+    public function setAge(?int $age): self
     {
-        $this->age = $age;
+        $this->age = $age ?? 0;
 
         return $this;
     }
