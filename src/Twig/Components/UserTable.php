@@ -6,7 +6,7 @@ use App\Entity\User;
 use App\Form\UserEditFormType;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\UX\LiveComponent\Attribute\AsLiveComponent;
 use Symfony\UX\LiveComponent\Attribute\LiveAction;
@@ -16,7 +16,7 @@ use Symfony\UX\LiveComponent\ComponentWithFormTrait;
 use Symfony\UX\LiveComponent\DefaultActionTrait;
 
 #[AsLiveComponent("user-table", template: "components/user-table.html.twig")]
-class UserTable extends AbstractController
+class UserTable
 {
     use DefaultActionTrait;
     use ComponentWithFormTrait;
@@ -28,7 +28,7 @@ class UserTable extends AbstractController
     public array $users = [];
 
     #[LiveProp(writable: true)]
-    public ?int $editingUserId = null;
+    public ?User $editingUser = null;
 
     #[LiveProp]
     public ?int $cursor = null;
@@ -36,6 +36,7 @@ class UserTable extends AbstractController
     public function __construct(
         private readonly UserRepository $userRepository,
         private readonly EntityManagerInterface $entityManager,
+        private readonly FormFactoryInterface $formFactory,
     )
     {
     }
@@ -65,20 +66,19 @@ class UserTable extends AbstractController
     }
 
     #[LiveAction]
-    public function edit(#[LiveArg] int $id): void
+    public function openEditModal(#[LiveArg] int $id): void
     {
-        $this->editingUserId = $id;
+        $this->editingUser = $this->userRepository->find($id);
         $this->resetForm();
     }
 
     protected function instantiateForm(): FormInterface
     {
-        $user = $this->editingUserId ? $this->userRepository->find($this->editingUserId) : null;
-        return $this->createForm(UserEditFormType::class, $user);
+        return $this->formFactory->create(UserEditFormType::class, $this->editingUser);
     }
 
     #[LiveAction]
-    public function save(): void
+    public function update(): void
     {
         $this->submitForm();
 
@@ -86,31 +86,19 @@ class UserTable extends AbstractController
         {
             $this->entityManager->flush();
 
-            $editedUser = $this->userRepository->find($this->editingUserId);
             $index = array_search(
-                array_filter($this->users, fn($u) => $u->getId() === $this->editingUserId)[0] ?? null,
+                array_filter($this->users, fn($u) => $u->getId() === $this->editingUser->getId())[0] ?? null,
                 $this->users,
                 true
             );
 
-            if ($index !== false && $editedUser)
+            if ($index !== false && $this->editingUser)
             {
-                $this->users[$index] = $editedUser;
+                $this->users[$index] = $this->editingUser;
             }
 
-            $this->editingUserId = null;
+            $this->editingUser = null;
         }
-    }
-
-    #[LiveAction]
-    public function close(): void
-    {
-        $this->editingUserId = null;
-    }
-
-    public function getEditingUser(): ?User
-    {
-        return $this->editingUserId ? $this->userRepository->find($this->editingUserId) : null;
     }
 
     #[LiveAction]

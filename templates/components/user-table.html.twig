@@ -18,21 +18,11 @@
                     <td>{{ user.email }}</td>
                     <td>{{ user.age }}</td>
                     <td class="flex flex-row border-none">
-                        <button
-                            class="btn btn-sm btn-ghost tooltip"
-                            data-action="live#action"
-                            data-live-action-param="edit"
-                            data-live-id-param="{{ user.id }}"
-                        >
+                        <button class="btn btn-sm btn-ghost tooltip" data-action="live#action" data-live-action-param="openEditModal" data-live-id-param="{{ user.id }}">
                             <twig:icon name="edit" class="w-4 h-4" />
                         </button>
 
-                        <button
-                            class="btn btn-sm btn-ghost btn-error tooltip"
-                            data-action="live#action"
-                            data-live-action-param="delete"
-                            data-live-id-param="{{ user.id }}"
-                        >
+                        <button class="btn btn-sm btn-ghost btn-error tooltip" data-action="live#action" data-live-action-param="delete" data-live-id-param="{{ user.id }}">
                             <twig:icon name="trash" class="w-4 h-4" />
                         </button>
                     </td>
@@ -42,43 +32,30 @@
         </table>
     </div>
 
-    {% if this.editingUser %}
+    {% if editingUser %}
         <dialog id="user_edit_modal" class="modal modal-bottom sm:modal-middle" open>
             <div class="modal-box">
-                <button
-                    class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
-                    data-action="live#action"
-                    data-live-action-param="close"
-                >
+                <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2" data-model="editingUserId" data-value="null" data-action="live#update">
                     ✕
                 </button>
 
                 {{ form_start(form, {'attr': {'data-model': 'on(change)|*'}}) }}
-                {{ form_row(form.username) }}
-                {{ form_row(form.email) }}
-                {{ form_row(form.age) }}
+                    {{ form_row(form.username) }}
+                    {{ form_row(form.email) }}
+                    {{ form_row(form.age) }}
 
-                <div class="modal-action">
-                    <button
-                        type="submit"
-                        class="btn btn-neutral"
-                        data-action="live#action"
-                        data-live-action-param="save"
-                    >
-                        Sauvegarder
-                    </button>
-                </div>
+                    <div class="modal-action">
+                        <button type="submit" class="btn btn-neutral" data-action="live#action" data-live-action-param="update">
+                            Sauvegarder
+                        </button>
+                    </div>
                 {{ form_end(form) }}
             </div>
         </dialog>
     {% endif %}
 
     {% if this.hasMore %}
-        <button
-            class="btn"
-            data-action="live#action"
-            data-live-action-param="more"
-        >
+        <button class="btn" data-action="live#action" data-live-action-param="more">
             Voir plus
         </button>
     {% endif %}
