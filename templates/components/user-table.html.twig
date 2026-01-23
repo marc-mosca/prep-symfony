@@ -54,7 +54,7 @@
         </dialog>
     {% endif %}
 
-    {% if this.hasMore %}
+    {% if users | length < usersCount %}
         <button class="btn" data-action="live#action" data-live-action-param="more">
             Voir plus
         </button>

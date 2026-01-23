@@ -46,15 +46,4 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
             ->getResult();
     }
 
-    public function hasAfterId(int $afterId): bool
-    {
-        return (bool) $this->createQueryBuilder('u')
-            ->select('1')
-            ->where('u.id > :afterId')
-            ->setParameter('afterId', $afterId)
-            ->setMaxResults(1)
-            ->getQuery()
-            ->getOneOrNullResult();
-    }
-
 }

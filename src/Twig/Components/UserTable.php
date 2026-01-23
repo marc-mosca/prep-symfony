@@ -27,6 +27,9 @@ class UserTable
     #[LiveProp]
     public array $users = [];
 
+    #[LiveProp]
+    public int $usersCount;
+
     #[LiveProp(writable: true)]
     public ?User $editingUser = null;
 
@@ -44,12 +47,12 @@ class UserTable
     public function mount(): void
     {
         $this->loadUsers();
+        $this->usersCount = $this->userRepository->count();
     }
 
     public function loadUsers(?int $cursor = null, int $limit = self::PER_PAGE): void
     {
-        $cursor = $cursor ?? ($this->cursor ?? 0);
-        $users = $this->userRepository->findNextUsers(afterId: $cursor, limit: $limit);
+        $users = $this->userRepository->findNextUsers(afterId: $cursor ?? ($this->cursor ?? 0), limit: $limit);
         $this->users = array_merge($this->users, $users);
         $this->cursor = end($users)->getId();
     }
@@ -58,11 +61,6 @@ class UserTable
     public function more(): void
     {
         $this->loadUsers();
-    }
-
-    public function hasMore(): bool
-    {
-        return $this->userRepository->hasAfterId($this->cursor ?? 0);
     }
 
     #[LiveAction]
