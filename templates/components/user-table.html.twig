@@ -55,7 +55,7 @@
                                 <twig:icon name="edit" class="w-4 h-4" />
                             </button>
 
-                            <button class="btn btn-sm btn-ghost btn-error tooltip" data-action="live#action" data-live-action-param="delete" data-live-id-param="{{ user.id }}">
+                            <button class="btn btn-sm btn-ghost btn-error tooltip" data-action="live#action" data-live-action-param="openDeleteModal" data-live-id-param="{{ user.id }}">
                                 <twig:icon name="trash" class="w-4 h-4" />
                             </button>
                         </td>
@@ -69,6 +69,8 @@
     {% if editingUser %}
         <dialog id="user_edit_modal" class="modal modal-bottom sm:modal-middle" open>
             <div class="modal-box">
+                <h3 class="font-bold text-lg mb-4">Modifier l'utilisateur</h3>
+
                 <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2" data-model="editingUser" data-value="null" data-action="live#update">
                     ✕
                 </button>
@@ -84,6 +86,28 @@
                         </button>
                     </div>
                 {{ form_end(form) }}
+            </div>
+        </dialog>
+    {% endif %}
+
+    {% if deletingUser %}
+        <dialog id="user_delete_modal" class="modal modal-bottom sm:modal-middle" open>
+            <div class="modal-box">
+                <h3 class="font-bold text-lg">Confirmer la suppression</h3>
+                <p class="py-4">
+                    Êtes-vous sûr de vouloir supprimer l'utilisateur
+                    <strong>{{ deletingUser.username }}</strong> ({{ deletingUser.email }}) ?
+                </p>
+                <p class="text-sm text-warning">Cette action est irréversible.</p>
+
+                <div class="modal-action">
+                    <button class="btn" data-model="deletingUserId" data-value="null" data-action="live#update">
+                        Annuler
+                    </button>
+                    <button class="btn btn-error" data-action="live#action" data-live-action-param="delete">
+                        Supprimer
+                    </button>
+                </div>
             </div>
         </dialog>
     {% endif %}

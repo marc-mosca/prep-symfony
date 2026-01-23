@@ -33,6 +33,9 @@ class UserTable
     #[LiveProp(writable: true)]
     public ?User $editingUser = null;
 
+    #[LiveProp(writable: true)]
+    public ?User $deletingUser = null;
+
     #[LiveProp]
     public ?int $cursor = null;
 
@@ -56,7 +59,15 @@ class UserTable
     #[LiveAction]
     public function loadUsers(?int $cursor = null, int $limit = self::PER_PAGE): void
     {
-        $users = $this->userRepository->findNextUsers(afterId: $cursor ?? ($this->cursor ?? 0), limit: $limit, query: $this->query);
+        $cursor = $cursor ?? ($this->cursor ?? 0);
+        $users = $this->userRepository->findNextUsers(afterId: $cursor, limit: $limit, query: $this->query);
+
+        if (empty($users) === true)
+        {
+            $this->cursor = null;
+            return ;
+        }
+
         $this->users = array_merge($this->users, $users);
         $this->cursor = end($users)->getId();
     }
@@ -71,6 +82,12 @@ class UserTable
     {
         $this->editingUser = $this->userRepository->find($id);
         $this->resetForm();
+    }
+
+    #[LiveAction]
+    public function openDeleteModal(#[LiveArg] int $id): void
+    {
+        $this->deletingUser = $this->userRepository->find($id);
     }
 
     protected function instantiateForm(): FormInterface
@@ -112,9 +129,9 @@ class UserTable
     }
 
     #[LiveAction]
-    public function delete(#[LiveArg] int $id): void
+    public function delete(): void
     {
-        $user = $this->userRepository->find($id);
+        $user = $this->deletingUser;
 
         $this->entityManager->remove($user);
         $this->entityManager->flush();
@@ -128,5 +145,7 @@ class UserTable
             $lastId = empty($this->users) ? ($this->cursor ?? 0) : end($this->users)->getId();
             $this->loadUsers($lastId, $missing);
         }
+
+        $this->deletingUser = null;
     }
 }
