@@ -50,17 +50,12 @@ class UserTable
         $this->usersCount = $this->userRepository->count();
     }
 
+    #[LiveAction]
     public function loadUsers(?int $cursor = null, int $limit = self::PER_PAGE): void
     {
         $users = $this->userRepository->findNextUsers(afterId: $cursor ?? ($this->cursor ?? 0), limit: $limit);
         $this->users = array_merge($this->users, $users);
         $this->cursor = end($users)->getId();
-    }
-
-    #[LiveAction]
-    public function more(): void
-    {
-        $this->loadUsers();
     }
 
     #[LiveAction]
@@ -106,6 +101,7 @@ class UserTable
 
         $this->entityManager->remove($user);
         $this->entityManager->flush();
+        $this->usersCount--;
         $this->users = array_values(array_filter($this->users, fn ($u) => $u !== $user));
 
         $missing = self::PER_PAGE - count($this->users);
