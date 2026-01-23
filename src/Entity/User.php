@@ -9,7 +9,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
-#[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
+#[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_USERNAME', fields: ["username"])]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
@@ -17,12 +17,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: "integer")]
     private ?int $id = null;
 
-    #[ORM\Column(type: "string", length: 255, nullable: false)]
+    #[ORM\Column(type: "string", length: 255, unique: true, nullable: false)]
     #[Assert\NotBlank]
     #[Assert\Length(min: 3, max: 40)]
     private string $username = "";
 
-    #[ORM\Column(type: "string", length: 255, unique: true, nullable: false)]
+    #[ORM\Column(type: "string", length: 255, nullable: false)]
     #[Assert\NotBlank]
     #[Assert\Length(min: 5, max: 100)]
     #[Assert\Email]
@@ -43,6 +43,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(type: "datetime_immutable", nullable: true)]
     private ?\DateTimeInterface $updatedAt = null;
+
+    public function setId(?int $id): self
+    {
+        $this->id = $id;
+        return $this;
+    }
 
     public function getId(): ?int
     {
