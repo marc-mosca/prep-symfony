@@ -36,6 +36,9 @@ class UserTable
     #[LiveProp]
     public ?int $cursor = null;
 
+    #[LiveProp(writable: true, onUpdated: 'search')]
+    public string $query = "";
+
     public function __construct(
         private readonly UserRepository $userRepository,
         private readonly EntityManagerInterface $entityManager,
@@ -47,15 +50,20 @@ class UserTable
     public function mount(): void
     {
         $this->loadUsers();
-        $this->usersCount = $this->userRepository->count();
+        $this->updateUsersCount();
     }
 
     #[LiveAction]
     public function loadUsers(?int $cursor = null, int $limit = self::PER_PAGE): void
     {
-        $users = $this->userRepository->findNextUsers(afterId: $cursor ?? ($this->cursor ?? 0), limit: $limit);
+        $users = $this->userRepository->findNextUsers(afterId: $cursor ?? ($this->cursor ?? 0), limit: $limit, query: $this->query);
         $this->users = array_merge($this->users, $users);
         $this->cursor = end($users)->getId();
+    }
+
+    private function updateUsersCount(): void
+    {
+        $this->usersCount = $this->userRepository->countByQuery($this->query);
     }
 
     #[LiveAction]
@@ -68,6 +76,15 @@ class UserTable
     protected function instantiateForm(): FormInterface
     {
         return $this->formFactory->create(UserEditFormType::class, $this->editingUser);
+    }
+
+    public function search(): void
+    {
+        $this->users = [];
+        $this->cursor = null;
+
+        $this->loadUsers();
+        $this->updateUsersCount();
     }
 
     #[LiveAction]

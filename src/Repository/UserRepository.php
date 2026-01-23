@@ -35,15 +35,39 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         $this->getEntityManager()->flush();
     }
 
-    public function findNextUsers(int $afterId, int $limit): array
+    public function findNextUsers(int $afterId, int $limit, string $query = ""): array
     {
-        return $this->createQueryBuilder('u')
+        $queryBuilder = $this->createQueryBuilder('u')
             ->where('u.id > :afterId')
             ->setParameter('afterId', $afterId)
             ->orderBy('u.id', 'ASC')
             ->setMaxResults($limit)
-            ->getQuery()
-            ->getResult();
+        ;
+
+        if ($query !== "")
+        {
+            $queryBuilder
+                ->andWhere("u.username LIKE :query OR u.email LIKE :query")
+                ->setParameter('query', '%' . $query . '%')
+            ;
+        }
+
+        return $queryBuilder->getQuery()->getResult();
+    }
+
+    public function countByQuery(string $query = ""): int
+    {
+        $queryBuilder = $this->createQueryBuilder('u')->select('COUNT(u.id)');
+
+        if ($query !== "")
+        {
+            $queryBuilder
+                ->andWhere("u.username LIKE :query OR u.email LIKE :query")
+                ->setParameter('query', '%' . $query . '%')
+            ;
+        }
+
+        return (int) $queryBuilder->getQuery()->getSingleScalarResult();
     }
 
 }
