@@ -2,4 +2,5 @@
 @source not "../../public";
 @plugin "daisyui" {
     themes: winter --default;
+    /*themes: dark --default;*/
 }
