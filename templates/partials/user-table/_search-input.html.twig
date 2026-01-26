@@ -1,0 +1,21 @@
+<div class="space-y-4">
+    <div class="form-control">
+        <label class="input input-bordered flex items-center gap-2">
+            <twig:icon name="search" class="w-5 h-5 opacity-70" />
+            <input type="text" class="grow" placeholder="Rechercher par nom ou email..." data-model="debounce(300)|query" value="{{ query }}" />
+            {% if query %}
+                <button class="btn btn-ghost btn-xs btn-circle" data-action="live#update" data-model="query" data-value="" title="Effacer la recherche">
+                    ✕
+                </button>
+            {% endif %}
+        </label>
+    </div>
+
+    <div class="text-sm text-base-content/70">
+        {% if query %}
+            {{ usersCount }} résultat{{ usersCount > 1 ? 's' : '' }} trouvé{{ usersCount > 1 ? 's' : '' }} pour "{{ query }}"
+        {% else %}
+            {{ usersCount }} utilisateur{{ usersCount > 1 ? 's' : '' }} au total
+        {% endif %}
+    </div>
+</div>

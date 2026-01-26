@@ -1,25 +1,5 @@
 <div class="flex flex-col space-y-8" {{ attributes }}>
-    <div class="space-y-4">
-        <div class="form-control">
-            <label class="input input-bordered flex items-center gap-2">
-                <twig:icon name="search" class="w-5 h-5 opacity-70" />
-                <input type="text" class="grow" placeholder="Rechercher par nom ou email..." data-model="debounce(300)|query" value="{{ query }}" />
-                {% if query %}
-                    <button class="btn btn-ghost btn-xs btn-circle" data-action="live#update" data-model="query" data-value="" title="Effacer la recherche">
-                        ✕
-                    </button>
-                {% endif %}
-            </label>
-        </div>
-
-        <div class="text-sm text-base-content/70">
-            {% if query %}
-                {{ usersCount }} résultat{{ usersCount > 1 ? 's' : '' }} trouvé{{ usersCount > 1 ? 's' : '' }} pour "{{ query }}"
-            {% else %}
-                {{ usersCount }} utilisateur{{ usersCount > 1 ? 's' : '' }} au total
-            {% endif %}
-        </div>
-    </div>
+    {% include "partials/user-table/_search-input.html.twig" %}
 
     <div class="overflow-x-auto rounded-box border border-base-content/5 bg-base-100">
         <table class="table table-zebra">
@@ -45,72 +25,15 @@
                 </tr>
             {% else %}
                 {% for user in users %}
-                    <tr>
-                        <th>{{ user.id }}</th>
-                        <td>{{ user.username }}</td>
-                        <td>{{ user.email }}</td>
-                        <td>{{ user.age }}</td>
-                        <td class="flex flex-row border-none">
-                            <button class="btn btn-sm btn-ghost tooltip" data-action="live#action" data-live-action-param="openEditModal" data-live-id-param="{{ user.id }}">
-                                <twig:icon name="edit" class="w-4 h-4" />
-                            </button>
-
-                            <button class="btn btn-sm btn-ghost btn-error tooltip" data-action="live#action" data-live-action-param="openDeleteModal" data-live-id-param="{{ user.id }}">
-                                <twig:icon name="trash" class="w-4 h-4" />
-                            </button>
-                        </td>
-                    </tr>
+                    {% include "partials/user-table/_user-row.html.twig" with {user: user} %}
                 {% endfor %}
             {% endif %}
             </tbody>
         </table>
     </div>
 
-    {% if editingUser %}
-        <dialog id="user_edit_modal" class="modal modal-bottom sm:modal-middle" open>
-            <div class="modal-box">
-                <h3 class="font-bold text-lg mb-4">Modifier l'utilisateur</h3>
-
-                <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2" data-model="editingUser" data-value="null" data-action="live#update">
-                    ✕
-                </button>
-
-                {{ form_start(form, {'attr': {'data-model': 'on(change)|*'}}) }}
-                    {{ form_row(form.username) }}
-                    {{ form_row(form.email) }}
-                    {{ form_row(form.age) }}
-
-                    <div class="modal-action">
-                        <button type="submit" class="btn btn-neutral" data-action="live#action" data-live-action-param="update">
-                            Sauvegarder
-                        </button>
-                    </div>
-                {{ form_end(form) }}
-            </div>
-        </dialog>
-    {% endif %}
-
-    {% if deletingUser %}
-        <dialog id="user_delete_modal" class="modal modal-bottom sm:modal-middle" open>
-            <div class="modal-box">
-                <h3 class="font-bold text-lg">Confirmer la suppression</h3>
-                <p class="py-4">
-                    Êtes-vous sûr de vouloir supprimer l'utilisateur
-                    <strong>{{ deletingUser.username }}</strong> ({{ deletingUser.email }}) ?
-                </p>
-                <p class="text-sm text-warning">Cette action est irréversible.</p>
-
-                <div class="modal-action">
-                    <button class="btn" data-model="deletingUser" data-value="null" data-action="live#update">
-                        Annuler
-                    </button>
-                    <button class="btn btn-error" data-action="live#action" data-live-action-param="delete">
-                        Supprimer
-                    </button>
-                </div>
-            </div>
-        </dialog>
-    {% endif %}
+    {% include "partials/user-table/_edit-modal.html.twig" %}
+    {% include "partials/user-table/_delete-modal.html.twig" %}
 
     {% if users | length < usersCount %}
         <button class="btn" data-action="live#action" data-live-action-param="loadUsers">
