@@ -13,7 +13,9 @@
 
     <div class="text-sm text-base-content/70 pt-1">
         <p>
-            {% if query %}
+            {% if query is not empty and query | length < 3 %}
+                Veuillez saisir au moins 3 caractères pour lancer la recherche.
+            {% elseif query %}
                 {{ usersCount }} résultat{{ usersCount > 1 ? 's' : '' }} trouvé{{ usersCount > 1 ? 's' : '' }} pour "{{ query }}"
             {% else %}
                 {{ usersCount }} utilisateur{{ usersCount > 1 ? 's' : '' }} au total

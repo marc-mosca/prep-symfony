@@ -99,6 +99,10 @@ class UserTable
 
     public function search(): void
     {
+        if ($this->query !== '' && mb_strlen($this->query) < 3)
+        {
+            return;
+        }
         $this->users = [];
         $this->offset = 0;
 
