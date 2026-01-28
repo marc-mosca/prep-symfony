@@ -3,6 +3,7 @@
     <td>{{ user.username }}</td>
     <td>{{ user.email }}</td>
     <td>{{ user.age }}</td>
+    <td>{{ user.roles | first }}</td>
     <td class="flex flex-row border-none">
         <button class="btn btn-sm btn-ghost tooltip" data-action="live#action" data-live-action-param="openEditModal" data-live-id-param="{{ user.id }}">
             <twig:icon name="edit" class="w-4 h-4" />

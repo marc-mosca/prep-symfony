@@ -70,6 +70,7 @@ class UserImporter
                 ->setUsername($row["uti_login"])
                 ->setEmail($row["uti_mail"])
                 ->setAge(0)
+                ->setRoles($this->convertUserRole($row["fon_numero"]))
                 ->setCreatedAt(new \DateTimeImmutable())
                 ->setUpdatedAt(new \DateTimeImmutable())
             ;
@@ -80,6 +81,15 @@ class UserImporter
 
         $this->entityManager->flush();
         $io->success(sprintf('Import de %d utilisateur', count($result)));
+    }
+
+    private function convertUserRole(int $roleId): string
+    {
+        return match ($roleId) {
+            1 => "ROLE_ADMIN",
+            3 => "ROLE_REDACTEUR",
+            default => "ROLE_USER",
+        };
     }
 
     private function truncate(): void

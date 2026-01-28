@@ -21,7 +21,7 @@ class UserTable
     use DefaultActionTrait;
     use ComponentWithFormTrait;
 
-    private const int PER_PAGE = 10;
+    private const int PER_PAGE = 25;
 
     /** @var User[] */
     #[LiveProp]
