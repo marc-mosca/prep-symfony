@@ -35,27 +35,45 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         $this->getEntityManager()->flush();
     }
 
-    public function findNextUsers(int $afterId, int $limit, string $query = ""): array
+    public function findNextUsers(
+        int $offset,
+        int $limit,
+        string $query = "",
+        string $role = "",
+        string $sortBy = "id",
+        string $sortDir = "ASC"
+    ): array
     {
+        $allowedSorts = [
+            'id' => 'u.id',
+            'username' => 'u.username',
+            'email' => 'u.email',
+            'age' => 'u.age',
+        ];
+        $sortColumn = $allowedSorts[$sortBy] ?? 'u.id';
+        $sortDir = strtoupper($sortDir) === 'DESC' ? 'DESC' : 'ASC';
+
         $queryBuilder = $this->createQueryBuilder('u')
-            ->where('u.id > :afterId')
-            ->setParameter('afterId', $afterId)
-            ->orderBy('u.id', 'ASC')
-            ->setMaxResults($limit)
-        ;
+            ->orderBy($sortColumn, $sortDir)
+            ->setFirstResult($offset)
+            ->setMaxResults($limit);
 
         if ($query !== "")
         {
-            $queryBuilder
-                ->andWhere("u.username LIKE :query OR u.email LIKE :query")
-                ->setParameter('query', '%' . $query . '%')
-            ;
+            $queryBuilder->andWhere('u.username LIKE :query OR u.email LIKE :query')
+                ->setParameter('query', '%' . $query . '%');
+        }
+
+        if ($role !== "")
+        {
+            $queryBuilder->andWhere('u.roles LIKE :role')
+                ->setParameter('role', '%"' . $role . '"%');
         }
 
         return $queryBuilder->getQuery()->getResult();
     }
 
-    public function countByQuery(string $query = ""): int
+    public function countByQuery(string $query = "", string $role = ""): int
     {
         $queryBuilder = $this->createQueryBuilder('u')->select('COUNT(u.id)');
 
@@ -65,6 +83,12 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
                 ->andWhere("u.username LIKE :query OR u.email LIKE :query")
                 ->setParameter('query', '%' . $query . '%')
             ;
+        }
+
+        if ($role !== "") {
+            $queryBuilder
+                ->andWhere('u.roles LIKE :role')
+                ->setParameter('role', '%"' . $role . '"%');
         }
 
         return (int) $queryBuilder->getQuery()->getSingleScalarResult();

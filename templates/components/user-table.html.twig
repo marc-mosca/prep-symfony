@@ -1,11 +1,30 @@
 <div class="flex flex-col space-y-5" {{ attributes }}>
-    {% include "partials/user-table/_search-input.html.twig" %}
+    <div class="flex justify-between">
+        <div class="flex gap-4">
+            {% include "partials/user-table/_search-input.html.twig" %}
+            {% include "partials/user-table/_role-filter.html.twig" %}
+        </div>
+
+        <button class="btn" data-action="live#action" data-live-action-param="openAddModal">Ajouter un utilisateur</button>
+    </div>
 
     <div class="overflow-x-auto rounded-box border border-base-content/5 bg-base-100">
         <table class="table table-zebra">
             <thead>
             <tr>
-                <th></th>
+                <th>
+                    <button
+                        class="btn btn-ghost btn-xs"
+                        data-action="live#action"
+                        data-live-action-param="toggleSort"
+                        data-live-sort-by-param="id"
+                    >
+                        ID
+                        {% if sortBy == 'id' %}
+                            {{ sortDir == 'ASC' ? '↑' : '↓' }}
+                        {% endif %}
+                    </button>
+                </th>
                 <th>Nom</th>
                 <th>Email</th>
                 <th>Age</th>

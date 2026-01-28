@@ -37,10 +37,19 @@ class UserTable
     public ?User $deletingUser = null;
 
     #[LiveProp]
-    public ?int $cursor = null;
+    public int $offset = 0;
 
     #[LiveProp(writable: true, onUpdated: 'search')]
     public string $query = "";
+
+    #[LiveProp(writable: true, onUpdated: 'search')]
+    public string $role = "";
+
+    #[LiveProp(writable: true, onUpdated: 'search')]
+    public string $sortBy = 'id';
+
+    #[LiveProp(writable: true, onUpdated: 'search')]
+    public string $sortDir = 'ASC';
 
     public function __construct(
         private readonly UserRepository $userRepository,
@@ -57,24 +66,17 @@ class UserTable
     }
 
     #[LiveAction]
-    public function loadUsers(?int $cursor = null, int $limit = self::PER_PAGE): void
+    public function loadUsers(int $limit = self::PER_PAGE): void
     {
-        $cursor = $cursor ?? ($this->cursor ?? 0);
-        $users = $this->userRepository->findNextUsers(afterId: $cursor, limit: $limit, query: $this->query);
-
-        if (empty($users) === true)
-        {
-            $this->cursor = null;
-            return ;
-        }
+        $users = $this->userRepository->findNextUsers($this->offset, $limit, $this->query, $this->role, $this->sortBy, $this->sortDir);
 
         $this->users = array_merge($this->users, $users);
-        $this->cursor = end($users)->getId();
+        $this->offset += count($users);
     }
 
     private function updateUsersCount(): void
     {
-        $this->usersCount = $this->userRepository->countByQuery($this->query);
+        $this->usersCount = $this->userRepository->countByQuery($this->query, $this->role);
     }
 
     #[LiveAction]
@@ -98,7 +100,7 @@ class UserTable
     public function search(): void
     {
         $this->users = [];
-        $this->cursor = null;
+        $this->offset = 0;
 
         $this->loadUsers();
         $this->updateUsersCount();
@@ -147,5 +149,20 @@ class UserTable
         }
 
         $this->deletingUser = null;
+    }
+
+    #[LiveAction]
+    public function toggleSort(#[LiveArg] string $sortBy): void
+    {
+        if ($this->sortBy === $sortBy)
+        {
+            $this->sortDir = $this->sortDir === 'ASC' ? 'DESC' : 'ASC';
+        }
+        else
+        {
+            $this->sortBy = $sortBy;
+            $this->sortDir = 'ASC';
+        }
+        $this->search();
     }
 }
